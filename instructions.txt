@@ -1,0 +1,45 @@
+chmod +x cloudlab-setup-ubuntu-tl.sh && ./cloudlab-setup-ubuntu-tl.sh && \
+sudo apt-get install libvirt-bin genisoimage libguestfs-tools libosinfo-bin virtinst qemu-kvm git vim net-tools wget curl bash-completion python-pip libvirt-daemon-system virt-manager bridge-utils libnss-libvirt libvirt-clients osinfo-db-tools intltool sshpass p7zip-full p7zip-rar -y && \
+sudo sed -i 's/hosts:          files dns/hosts:          files libvirt libvirt_guest dns/' /etc/nsswitch.conf && sudo lsmod | grep kvm && sudo reboot
+#sudo systemctl restart libvirtd && sudo systemctl status libvirtd
+
+screen
+# Press Return to continue
+# detach from session without killing it: Ctrl a d 
+# to see screen sessions: screen -ls
+# detach from closed session: screen -d -r 1990.pts-0.node0
+# enter session: screen -r 1990.pts-0.node0
+# exit a session and terminate it: exit
+
+sudo -i
+
+# Create OS node VMs
+cd /mnt/extra && cat /sys/module/kvm_intel/parameters/nested && cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l && free -h && df -hT && sudo virsh list --all && sudo brctl show && \
+mkdir -p /mnt/extra/virt/images && mkdir -p /mnt/extra/virt/vms && cd /mnt/extra/virt/images && \
+cd /mnt/extra/ && git clone https://github.com/giovtorres/kvm-install-vm.git && cd kvm-install-vm
+
+##################################################################################################################################################################################
+######################################## OSH Cluster (https://github.com/vpasias/osh-multinode-kvm) #############################################################################################################
+##################################################################################################################################################################################
+
+git clone https://github.com/vpasias/osh-multinode-kvm.git && ls -lah && \
+cd /mnt/extra/kvm-install-vm && cp /mnt/extra/kvm-install-vm/osh-multinode-kvm/vm_deployment.sh . && chmod +x vm_deployment.sh && ./vm_deployment.sh
+
+for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo ip a"; done && \
+for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "uname -a"; done
+
+#############################################################################################################
+################ Delete ########################################################################################
+#############################################################################################################
+# virsh console n1
+# virsh shutdown n1
+# virsh start n1
+# virsh list --all
+# for i in {1..6}; do virsh shutdown n$i; done && sleep 10 && virsh list --all && for i in {1..6}; do virsh start n$i; done && sleep 10 && virsh list --all
+
+cd /mnt/extra/kvm-install-vm && \
+for i in {1..6}; do ./kvm-install-vm remove n$i; done && rm -rf vbdnode1* && rm -rf vbdnode2* && virsh net-destroy management && \
+rm -rf /mnt/extra/management.xml && virsh net-destroy cluster && rm -rf /mnt/extra/cluster.xml && virsh net-destroy service && rm -rf /mnt/extra/service.xml && \
+virsh net-undefine management && virsh net-undefine cluster && virsh net-undefine service && \
+rm -rf /root/.ssh/known_hosts && touch /root/.ssh/known_hosts && \
+sudo virsh list --all && sudo brctl show && sudo virsh net-list --all
