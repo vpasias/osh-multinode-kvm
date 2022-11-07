@@ -1,1 +1,1 @@
-# osh-multinode-kvm
+# Multinode Openstack Helm based on KVM VMs 
