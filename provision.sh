@@ -19,7 +19,7 @@ all:
           ansible_port: 22
           ansible_host: 172.24.1.10
           ansible_user: ubuntu
-          ansible_ssh_private_key_file: /home/ubuntu/.ssh/n1
+          ansible_ssh_private_key_file: /etc/openstack-helm/deploy-key.pem
           ansible_ssh_extra_args: -o "LogLevel=FATAL" -o "Compression=yes" -o "DSAAuthentication=yes" -o "IdentitiesOnly=yes" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"
     nodes:
       hosts:
@@ -27,31 +27,31 @@ all:
           ansible_port: 22
           ansible_host: 172.24.1.11
           ansible_user: ubuntu
-          ansible_ssh_private_key_file: /home/ubuntu/.ssh/n2
+          ansible_ssh_private_key_file: /etc/openstack-helm/deploy-key.pem
           ansible_ssh_extra_args: -o "LogLevel=FATAL" -o "Compression=yes" -o "DSAAuthentication=yes" -o "IdentitiesOnly=yes" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"
         node_three:
           ansible_port: 22
           ansible_host: 172.24.1.12
           ansible_user: ubuntu
-          ansible_ssh_private_key_file: /home/ubuntu/.ssh/n3
+          ansible_ssh_private_key_file: /etc/openstack-helm/deploy-key.pem
           ansible_ssh_extra_args: -o "LogLevel=FATAL" -o "Compression=yes" -o "DSAAuthentication=yes" -o "IdentitiesOnly=yes" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"
         node_four:
           ansible_port: 22
           ansible_host: 172.24.1.13
           ansible_user: ubuntu
-          ansible_ssh_private_key_file: /home/ubuntu/.ssh/n4
+          ansible_ssh_private_key_file: /etc/openstack-helm/deploy-key.pem
           ansible_ssh_extra_args: -o "LogLevel=FATAL" -o "Compression=yes" -o "DSAAuthentication=yes" -o "IdentitiesOnly=yes" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"
         node_five:
           ansible_port: 22
           ansible_host: 172.24.1.14
           ansible_user: ubuntu
-          ansible_ssh_private_key_file: /home/ubuntu/.ssh/n5
+          ansible_ssh_private_key_file: /etc/openstack-helm/deploy-key.pem
           ansible_ssh_extra_args: -o "LogLevel=FATAL" -o "Compression=yes" -o "DSAAuthentication=yes" -o "IdentitiesOnly=yes" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"
         node_six:
           ansible_port: 22
           ansible_host: 172.24.1.15
           ansible_user: ubuntu
-          ansible_ssh_private_key_file: /home/ubuntu/.ssh/n6
+          ansible_ssh_private_key_file: /etc/openstack-helm/deploy-key.pem
           ansible_ssh_extra_args: -o "LogLevel=FATAL" -o "Compression=yes" -o "DSAAuthentication=yes" -o "IdentitiesOnly=yes" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"
 EOF
 
