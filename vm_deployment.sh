@@ -217,11 +217,18 @@ for i in {4..6}; do sshpass -f /mnt/extra/kvm-install-vm/rpass ssh -o StrictHost
 
 sleep 10
 
-sudo apt install snapd -y
-sudo snap install kubectl --classic
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+sudo apt update -y
+sudo apt -y install kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
 
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && chmod 700 get_helm.sh && ./get_helm.sh
-helm version
 helm repo remove stable || true
+
+kubectl version --client
+kubeadm version
+helm version
 
 #for i in {1..6}; do virsh shutdown n$i; done && sleep 10 && virsh list --all && for i in {1..6}; do virsh start n$i; done && sleep 10 && virsh list --all
