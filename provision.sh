@@ -2,7 +2,6 @@
 #
 echo "=== Setup auth ==="
 
-#cp /home/vagrant/.ssh/authorized_keys /home/ubuntu/.ssh/authorized_keys
 chown -R ubuntu: /home/ubuntu/.ssh
 
 echo "=== Cloning OpenStack-Helm ==="
