@@ -82,7 +82,7 @@ for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo rm -rf /r
 
 for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo hostnamectl set-hostname n$i --static"; done
 
-for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo apt update -y && sudo apt-get install -y git vim net-tools wget curl bash-completion apt-utils iperf iperf3  vim net-tools wget curl bash-completion apt-utils iperf iperf3 mtr traceroute netcat sshpass socat xfsprogs locate jq"; done
+for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo apt update -y && sudo apt-get install -y git vim net-tools wget curl bash-completion apt-utils iperf iperf3 make mtr traceroute netcat sshpass socat xfsprogs locate jq"; done
 
 #for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo apt-get install ntp ntpdate -y && sudo timedatectl set-ntp on"; done
 
@@ -90,7 +90,7 @@ for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo modprobe 
 
 for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo chmod -x /etc/update-motd.d/*"; done
 
-for i in {1..6; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i 'cat << EOF | sudo tee /etc/update-motd.d/01-custom
+for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i 'cat << EOF | sudo tee /etc/update-motd.d/01-custom
 #!/bin/sh
 echo "****************************WARNING****************************************
 UNAUTHORISED ACCESS IS PROHIBITED. VIOLATORS WILL BE PROSECUTED.
@@ -111,12 +111,6 @@ for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "cat << EOF | s
 [Service]
 TimeoutStartSec=15
 EOF"; done
-
-for i in {1..6}; do virsh shutdown n$i; done && sleep 10 && virsh list --all && for i in {1..6}; do virsh start n$i; done && sleep 10 && virsh list --all
-
-sleep 30
-
-for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo apt update -y"; done
 
 for i in {1..6}; do qemu-img create -f qcow2 vbdnode1$i 120G; done
 for i in {1..6}; do qemu-img create -f qcow2 vbdnode2$i 120G; done
@@ -167,26 +161,35 @@ for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo sysctl --
 
 for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "#echo vm.swappiness=1 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p"; done
 
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cat << EOF | sudo tee /etc/netplan/01-netcfg.yaml
-# This file describes the network interfaces available on your system
-# For more information, see netplan(5).
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    ens3:
-      dhcp4: true
-      dhcp6: false     
-    ens11:
-      dhcp4: false
-      dhcp6: false    
-      addresses:
-        - 172.16.1.11/24
-    ens12:
-      dhcp4: false
-      dhcp6: false      
-      addresses:
-        - 172.16.2.11/24     
-EOF"
+for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "#echo vm.swappiness=1 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p"; done
 
 for i in {1..6}; do virsh shutdown n$i; done && sleep 10 && virsh list --all && for i in {1..6}; do virsh start n$i; done && sleep 10 && virsh list --all
+
+sleep 30
+
+# Create ssh key at n1 and distribute it 
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 'ssh-keygen -t rsa -q -N ""'
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -p 'kyax7344' ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n2"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -p 'kyax7344' ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n3"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -p 'kyax7344' ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n4"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -p 'kyax7344' ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n5"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -p 'kyax7344' ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n6"
+
+for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo mkdir -p /etc/openstack-helm"; done
+for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo cp ~/.ssh/id_rsa /etc/openstack-helm/deploy-key.pem"; done
+for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo chown ubuntu /etc/openstack-helm/deploy-key.pem"; done
+
+# Clone osh-multinode-kvm repository and perform initial provisioning
+for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "git clone https://github.com/vpasias/osh-multinode-kvm.git"; done
+
+for i in {1..6}; do sshpass -p 'gprm8350' ssh -o StrictHostKeyChecking=no root@n$i "cd /home/ubuntu/osh-multinode-kvm && chmod +x provision.sh && ./provision.sh"; done
+
+# Deploy K8s on n1
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cd /opt/openstack-helm-infra && make dev-deploy setup-host multinode"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cp -r /home/ubuntu/osh-multinode-kvm/deploy-k8s-kubeadm.sh /opt/openstack-helm-infra/tools/gate/deploy-k8s-kubeadm.sh"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cd /opt/openstack-helm-infra && make dev-deploy k8s multinode"
+
+# Deploy base infrastracture on nodes n2, n3, n4, n5, n6
+for i in {2..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "cp /home/ubuntu/osh-multinode-kvm/deploy-base.sh /home/ubuntu/deploy-base.sh && chmod +x /home/ubuntu/deploy-base.sh && cd ~ && ./deploy-base.sh"; done
+
+#for i in {1..6}; do virsh shutdown n$i; done && sleep 10 && virsh list --all && for i in {1..6}; do virsh start n$i; done && sleep 10 && virsh list --all
