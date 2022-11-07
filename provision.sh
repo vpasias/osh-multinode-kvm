@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 echo "=== Setup auth ==="
 
 #cp /home/vagrant/.ssh/authorized_keys /home/ubuntu/.ssh/authorized_keys
@@ -55,7 +57,7 @@ all:
 EOF
 
 tee /opt/openstack-helm-infra/tools/gate/devel/multinode-vars.yaml << EOF
-kubernetes_network_default_device: enp0s8
+kubernetes_network_default_device: ens4
 EOF
 
 sudo chown -R ubuntu: /opt
