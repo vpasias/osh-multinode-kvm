@@ -21,6 +21,8 @@ set -ex
 export DEBCONF_NONINTERACTIVE_SEEN=true
 export DEBIAN_FRONTEND=noninteractive
 
+sudo apt-get update -y
+
 sudo apt purge snapd -y
 sudo rm -rf ~/snap /snap /var/snap /var/lib/snapd
 
