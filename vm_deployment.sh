@@ -48,6 +48,12 @@ virsh net-define /mnt/extra/service.xml && virsh net-autostart service && virsh 
 
 ip a && sudo virsh net-list --all
 
+echo 'kyax7344' > upass
+chmod 0400 upass
+
+echo 'gprm8350' > rpass
+chmod 0400 rpass
+
 sleep 20
 
 # Node 1
@@ -67,7 +73,6 @@ sleep 20
 
 # Node 6
 ./kvm-install-vm create -c 6 -m 32768 -d 120 -t ubuntu2004 -f host-passthrough -k /root/.ssh/id_rsa.pub -l /mnt/extra/virt/images -L /mnt/extra/virt/vms -b virbr100 -T US/Eastern -M 52:54:00:8a:8b:c6 n6
-
 
 sleep 60
 
@@ -161,19 +166,21 @@ for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo sysctl --
 
 for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "#echo vm.swappiness=1 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p"; done
 
-for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "#echo vm.swappiness=1 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p"; done
-
 for i in {1..6}; do virsh shutdown n$i; done && sleep 10 && virsh list --all && for i in {1..6}; do virsh start n$i; done && sleep 10 && virsh list --all
 
 sleep 30
 
 # Create ssh key at n1 and distribute it 
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "echo 'kyax7344' > upass && chmod 0400 upass"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "echo 'gprm8350' > rpass && chmod 0400 rpass"
+
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 'ssh-keygen -t rsa -q -N ""'
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -p 'kyax7344' ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n2"
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -p 'kyax7344' ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n3"
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -p 'kyax7344' ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n4"
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -p 'kyax7344' ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n5"
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -p 'kyax7344' ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n6"
+
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n2"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n3"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n4"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n5"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@n6"
 
 for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo mkdir -p /etc/openstack-helm"; done
 for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo cp ~/.ssh/id_rsa /etc/openstack-helm/deploy-key.pem"; done
@@ -182,7 +189,7 @@ for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo chown ubu
 # Clone osh-multinode-kvm repository and perform initial provisioning
 for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "git clone https://github.com/vpasias/osh-multinode-kvm.git"; done
 
-for i in {1..6}; do sshpass -p 'gprm8350' ssh -o StrictHostKeyChecking=no root@n$i "cd /home/ubuntu/osh-multinode-kvm && chmod +x provision.sh && ./provision.sh"; done
+for i in {1..6}; do sshpass -f /mnt/extra/kvm-install-vm/rpass ssh -o StrictHostKeyChecking=no root@n$i "cd /home/ubuntu/osh-multinode-kvm && chmod +x provision.sh && ./provision.sh"; done
 
 # Deploy K8s on n1
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cd /opt/openstack-helm-infra && make dev-deploy setup-host multinode"
@@ -191,5 +198,30 @@ ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cd /opt/openstack-helm-infra && mak
 
 # Deploy base infrastracture on nodes n2, n3, n4, n5, n6
 for i in {2..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "cp /home/ubuntu/osh-multinode-kvm/deploy-base.sh /home/ubuntu/deploy-base.sh && chmod +x /home/ubuntu/deploy-base.sh && cd ~ && ./deploy-base.sh"; done
+
+mkdir ~/.kube
+sshpass -f /mnt/extra/kvm-install-vm/rpass scp root@n1:/etc/kubernetes/admin.conf ~/.kube/config
+sshpass -f /mnt/extra/kvm-install-vm/rpass scp root@n1:/home/ubuntu/kubeadm.log ~/.kube/kubeadm.log
+for i in {2..6}; do scp ~/.kube/kubeadm.log ubuntu@n$i:/home/ubuntu/kubeadm.log; done
+
+discovery_token_ca_cert_hash="$(grep 'discovery-token-ca-cert-hash' ~/.kube/kubeadm.log | head -n1 | awk '{print $2}')"
+certificate_key="$(grep 'certificate-key' ~/.kube/kubeadm.log | head -n1 | awk '{print $3}')"
+
+# Deploy k8s infrastracture on nodes n2, n3, n4, n5, n6
+sshpass -f /mnt/extra/kvm-install-vm/rpass ssh -o StrictHostKeyChecking=no root@n2 "kubeadm join 172.24.1.10:6443 --token ayngk7.m1555duk5x2i3ctt --discovery-token-ca-cert-hash ${discovery_token_ca_cert_hash} --control-plane --certificate-key ${certificate_key} --apiserver-advertise-address=172.24.1.11"
+sshpass -f /mnt/extra/kvm-install-vm/rpass ssh -o StrictHostKeyChecking=no root@n3 "kubeadm join 172.24.1.10:6443 --token ayngk7.m1555duk5x2i3ctt --discovery-token-ca-cert-hash ${discovery_token_ca_cert_hash} --control-plane --certificate-key ${certificate_key} --apiserver-advertise-address=172.24.1.12"
+
+sleep 30
+
+for i in {4..6}; do sshpass -f /mnt/extra/kvm-install-vm/rpass ssh -o StrictHostKeyChecking=no root@n$i "kubeadm join 172.24.1.10:6443 --token ayngk7.m1555duk5x2i3ctt --discovery-token-ca-cert-hash ${discovery_token_ca_cert_hash}"; done
+
+sleep 10
+
+sudo apt install snapd -y
+sudo snap install kubectl --classic
+
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && chmod 700 get_helm.sh && ./get_helm.sh
+helm version
+helm repo remove stable || true
 
 #for i in {1..6}; do virsh shutdown n$i; done && sleep 10 && virsh list --all && for i in {1..6}; do virsh start n$i; done && sleep 10 && virsh list --all
