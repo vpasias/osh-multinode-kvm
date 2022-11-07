@@ -13,7 +13,7 @@
 
 set -ex
 
-sudo apt-get update
+sudo apt-get update -y
 sudo apt-get install --no-install-recommends -y \
         ca-certificates \
         git \
