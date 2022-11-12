@@ -165,8 +165,7 @@ rm -rf "${TMP_DIR}"
 
 # NOTE: Deploy kubernetes using kubeadm. A CNI that supports network policy is
 # required for validation; use calico for simplicity.
-#sudo kubeadm init --control-plane-endpoint="172.24.1.10:6443" --apiserver-advertise-address=172.24.1.10 --upload-certs --pod-network-cidr=192.168.0.0/16 --token ayngk7.m1555duk5x2i3ctt --token-ttl 0 | tee /home/ubuntu/kubeadm.log
-sudo kubeadm init --apiserver-advertise-address=172.24.1.10 --upload-certs --pod-network-cidr=192.168.0.0/16 --token ayngk7.m1555duk5x2i3ctt --token-ttl 0 | tee /home/ubuntu/kubeadm.log
+sudo kubeadm init --control-plane-endpoint="172.24.1.200:6443" --apiserver-advertise-address=172.24.1.10 --upload-certs --pod-network-cidr=192.168.0.0/16 --token ayngk7.m1555duk5x2i3ctt --token-ttl 0 | tee /home/ubuntu/kubeadm.log
 
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
