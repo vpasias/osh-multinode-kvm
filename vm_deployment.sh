@@ -208,28 +208,9 @@ for i in {1..6}; do sshpass -f /mnt/extra/kvm-install-vm/rpass ssh -o StrictHost
 # Deploy K8s on n1
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cd /opt/openstack-helm-infra && make dev-deploy setup-host multinode"
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cp -r /home/ubuntu/osh-multinode-kvm/deploy-k8s-kubeadm.sh /opt/openstack-helm-infra/tools/gate/deploy-k8s-kubeadm.sh"
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cd /opt/openstack-helm-infra && make dev-deploy k8s multinode"
 
 # Deploy base infrastracture on nodes n2, n3, n4, n5, n6
 for i in {2..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "cp /home/ubuntu/osh-multinode-kvm/deploy-base.sh /home/ubuntu/deploy-base.sh && chmod +x /home/ubuntu/deploy-base.sh && cd ~ && ./deploy-base.sh"; done
-
-sudo mkdir ~/.kube
-sshpass -f /mnt/extra/kvm-install-vm/rpass scp root@n1:/etc/kubernetes/admin.conf ~/.kube/config
-sshpass -f /mnt/extra/kvm-install-vm/rpass scp root@n1:/home/ubuntu/kubeadm.log ~/.kube/kubeadm.log
-for i in {2..6}; do scp ~/.kube/kubeadm.log ubuntu@n$i:/home/ubuntu/kubeadm.log; done
-
-discovery_token_ca_cert_hash="$(grep 'discovery-token-ca-cert-hash' ~/.kube/kubeadm.log | head -n1 | awk '{print $2}')"
-certificate_key="$(grep 'certificate-key' ~/.kube/kubeadm.log | head -n1 | awk '{print $3}')"
-
-# Deploy k8s infrastracture on nodes n2, n3, n4, n5, n6
-sshpass -f /mnt/extra/kvm-install-vm/rpass ssh -o StrictHostKeyChecking=no root@n2 "kubeadm join 172.24.1.10:6443 --token ayngk7.m1555duk5x2i3ctt --discovery-token-ca-cert-hash ${discovery_token_ca_cert_hash} --control-plane --certificate-key ${certificate_key} --apiserver-advertise-address=172.24.1.11"
-sshpass -f /mnt/extra/kvm-install-vm/rpass ssh -o StrictHostKeyChecking=no root@n3 "kubeadm join 172.24.1.10:6443 --token ayngk7.m1555duk5x2i3ctt --discovery-token-ca-cert-hash ${discovery_token_ca_cert_hash} --control-plane --certificate-key ${certificate_key} --apiserver-advertise-address=172.24.1.12"
-
-sleep 30
-
-for i in {4..6}; do sshpass -f /mnt/extra/kvm-install-vm/rpass ssh -o StrictHostKeyChecking=no root@n$i "kubeadm join 172.24.1.10:6443 --token ayngk7.m1555duk5x2i3ctt --discovery-token-ca-cert-hash ${discovery_token_ca_cert_hash}"; done
-
-sleep 10
 
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
