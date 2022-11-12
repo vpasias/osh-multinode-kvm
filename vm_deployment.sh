@@ -248,7 +248,7 @@ for i in {7..8}; do ssh -o StrictHostKeyChecking=no ubuntu@n$i "sudo systemctl e
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "echo 'kyax7344' > upass && chmod 0400 upass"
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "echo 'gprm8350' > rpass && chmod 0400 rpass"
 
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 'ssh-keygen -t rsa -q -N ""'
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 'ssh-keygen -t rsa -q -N "" -f .ssh/id_rsa'
 
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id '-o StrictHostKeyChecking=no' -i ~/.ssh/id_rsa.pub ubuntu@n1"
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id '-o StrictHostKeyChecking=no' -i ~/.ssh/id_rsa.pub ubuntu@n2"
