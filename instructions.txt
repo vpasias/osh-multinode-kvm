@@ -1,5 +1,5 @@
 chmod +x cloudlab-setup-ubuntu-tl.sh && ./cloudlab-setup-ubuntu-tl.sh && \
-sudo apt-get install libvirt-bin genisoimage libguestfs-tools libosinfo-bin virtinst qemu-kvm git vim net-tools wget curl bash-completion python3-pip libvirt-daemon-system virt-manager bridge-utils libnss-libvirt libvirt-clients osinfo-db-tools intltool sshpass apt-transport-https -y && \
+sudo apt-get install genisoimage libguestfs-tools libosinfo-bin virtinst qemu-kvm git vim net-tools wget curl bash-completion python3-pip libvirt-daemon-system virt-manager bridge-utils libnss-libvirt sysfsutils libvirt-clients osinfo-db-tools intltool sshpass ovmf genometools virt-top xorriso apt-transport-https -y && \
 sudo sed -i 's/hosts:          files dns/hosts:          files libvirt libvirt_guest dns/' /etc/nsswitch.conf && sudo lsmod | grep kvm && sudo reboot
 #sudo systemctl restart libvirtd && sudo systemctl status libvirtd
 
