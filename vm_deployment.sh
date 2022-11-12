@@ -209,9 +209,6 @@ for i in {1..6}; do sshpass -f /mnt/extra/kvm-install-vm/rpass ssh -o StrictHost
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cd /opt/openstack-helm-infra && make dev-deploy setup-host multinode"
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cp -r /home/ubuntu/osh-multinode-kvm/deploy-k8s-kubeadm.sh /opt/openstack-helm-infra/tools/gate/deploy-k8s-kubeadm.sh"
 
-# Deploy base infrastracture on nodes n2, n3, n4, n5, n6
-for i in {2..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "cp /home/ubuntu/osh-multinode-kvm/deploy-base.sh /home/ubuntu/deploy-base.sh && chmod +x /home/ubuntu/deploy-base.sh && cd ~ && ./deploy-base.sh"; done
-
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
