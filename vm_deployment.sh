@@ -201,7 +201,7 @@ ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "cd /opt/openstack-helm-infra && mak
 # Deploy base infrastracture on nodes n2, n3, n4, n5, n6
 for i in {2..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "cp /home/ubuntu/osh-multinode-kvm/deploy-base.sh /home/ubuntu/deploy-base.sh && chmod +x /home/ubuntu/deploy-base.sh && cd ~ && ./deploy-base.sh"; done
 
-mkdir ~/.kube
+sudo mkdir ~/.kube
 sshpass -f /mnt/extra/kvm-install-vm/rpass scp root@n1:/etc/kubernetes/admin.conf ~/.kube/config
 sshpass -f /mnt/extra/kvm-install-vm/rpass scp root@n1:/home/ubuntu/kubeadm.log ~/.kube/kubeadm.log
 for i in {2..6}; do scp ~/.kube/kubeadm.log ubuntu@n$i:/home/ubuntu/kubeadm.log; done
