@@ -174,7 +174,7 @@ for i in {1..8}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo sysctl --
 
 for i in {1..8}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "#echo vm.swappiness=1 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p"; done
 
-for i in {1..8}; do virsh shutdown n$i; done && sleep 10 && virsh list --all && for i in {1..6}; do virsh start n$i; done && sleep 10 && virsh list --all
+for i in {1..8}; do virsh shutdown n$i; done && sleep 10 && virsh list --all && for i in {1..8}; do virsh start n$i; done && sleep 10 && virsh list --all
 
 sleep 30
 
@@ -248,7 +248,7 @@ for i in {7..8}; do ssh -o StrictHostKeyChecking=no ubuntu@n$i "sudo systemctl e
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "echo 'kyax7344' > upass && chmod 0400 upass"
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "echo 'gprm8350' > rpass && chmod 0400 rpass"
 
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 'ssh-keygen -t rsa -q -N "" -f .ssh/id_rsa'
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 'ssh-keygen -t rsa -N "" -f .ssh/id_rsa'
 
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id '-o StrictHostKeyChecking=no' -i ~/.ssh/id_rsa.pub ubuntu@n1"
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id '-o StrictHostKeyChecking=no' -i ~/.ssh/id_rsa.pub ubuntu@n2"
@@ -295,4 +295,4 @@ kubectl version --client
 kubeadm version
 helm version
 
-#for i in {1..6}; do virsh shutdown n$i; done && sleep 10 && virsh list --all && for i in {1..6}; do virsh start n$i; done && sleep 10 && virsh list --all
+#for i in {1..8}; do virsh shutdown n$i; done && sleep 10 && virsh list --all && for i in {1..8}; do virsh start n$i; done && sleep 10 && virsh list --all
