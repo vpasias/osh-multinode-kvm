@@ -56,7 +56,7 @@ all:
 EOF
 
 tee /opt/openstack-helm-infra/tools/gate/devel/multinode-vars.yaml << EOF
-kubernetes_network_default_device: ens4
+kubernetes_network_default_device: enp1s0
 EOF
 
 sudo chown -R ubuntu: /opt
