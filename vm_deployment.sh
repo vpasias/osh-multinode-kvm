@@ -178,13 +178,16 @@ ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "echo 'gprm8350' > rpass && chmod 04
 
 ssh -o "StrictHostKeyChecking=no" ubuntu@n1 'ssh-keygen -t rsa -q -N ""'
 
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass scp '-o StrictHostKeyChecking=no' ~/.ssh/id_rsa* ubuntu@n2:~/.ssh/id_rsa*"
-
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id -o 'StrictHostKeyChecking=no' -i ~/.ssh/id_rsa.pub ubuntu@n2"
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id -o 'StrictHostKeyChecking=no' -i ~/.ssh/id_rsa.pub ubuntu@n3"
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id -o 'StrictHostKeyChecking=no' -i ~/.ssh/id_rsa.pub ubuntu@n4"
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id -o 'StrictHostKeyChecking=no' -i ~/.ssh/id_rsa.pub ubuntu@n5"
-ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass ssh-copy-id -o 'StrictHostKeyChecking=no' -i ~/.ssh/id_rsa.pub ubuntu@n6"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass scp '-o StrictHostKeyChecking=no' ~/.ssh/id_rsa.pub ubuntu@n2:~/.ssh/"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass scp '-o StrictHostKeyChecking=no' ~/.ssh/id_rsa ubuntu@n2:~/.ssh/"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass scp '-o StrictHostKeyChecking=no' ~/.ssh/id_rsa.pub ubuntu@n3:~/.ssh/"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass scp '-o StrictHostKeyChecking=no' ~/.ssh/id_rsa ubuntu@n3:~/.ssh/"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass scp '-o StrictHostKeyChecking=no' ~/.ssh/id_rsa.pub ubuntu@n4:~/.ssh/"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass scp '-o StrictHostKeyChecking=no' ~/.ssh/id_rsa ubuntu@n4:~/.ssh/"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass scp '-o StrictHostKeyChecking=no' ~/.ssh/id_rsa.pub ubuntu@n5:~/.ssh/"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass scp '-o StrictHostKeyChecking=no' ~/.ssh/id_rsa ubuntu@n5:~/.ssh/"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass scp '-o StrictHostKeyChecking=no' ~/.ssh/id_rsa.pub ubuntu@n6:~/.ssh/"
+ssh -o "StrictHostKeyChecking=no" ubuntu@n1 "sshpass -f upass scp '-o StrictHostKeyChecking=no' ~/.ssh/id_rsa ubuntu@n6:~/.ssh/"
 
 for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo mkdir -p /etc/openstack-helm"; done
 for i in {1..6}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "sudo cp ~/.ssh/id_rsa /etc/openstack-helm/deploy-key.pem"; done
