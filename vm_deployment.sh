@@ -125,11 +125,11 @@ for i in {1..8}; do ssh -o "StrictHostKeyChecking=no" ubuntu@n$i "cat << EOF | s
 TimeoutStartSec=15
 EOF"; done
 
-for i in {1..8}; do qemu-img create -f qcow2 vbdnode1$i 120G; done
+#for i in {1..8}; do qemu-img create -f qcow2 vbdnode1$i 120G; done
 #for i in {1..8}; do qemu-img create -f qcow2 vbdnode2$i 120G; done
 #for i in {1..8}; do qemu-img create -f qcow2 vbdnode3$i 120G; done
 
-for i in {1..8}; do ./kvm-install-vm attach-disk -d 120 -s /mnt/extra/kvm-install-vm/vbdnode1$i.qcow2 -t vdb n$i; done
+#for i in {1..8}; do ./kvm-install-vm attach-disk -d 120 -s /mnt/extra/kvm-install-vm/vbdnode1$i.qcow2 -t vdb n$i; done
 #for i in {1..8}; do ./kvm-install-vm attach-disk -d 120 -s /mnt/extra/kvm-install-vm/vbdnode2$i.qcow2 -t vdc n$i; done
 #for i in {1..8}; do ./kvm-install-vm attach-disk -d 120 -s /mnt/extra/kvm-install-vm/vbdnode3$i.qcow2 -t vdd n$i; done
 
